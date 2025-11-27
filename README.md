@@ -8,6 +8,8 @@ Un editor de archivos hosts para Windows construido con Electron + Vue.js.
 - ✅ Agregar, eliminar y visualizar entradas de hosts
 - ✅ Validación de IPs y dominios
 - ✅ Backup automático del archivo hosts
+- ✅ Organización por grupos
+- ✅ Renombrar y eliminar grupos (con confirmación)
 - ✅ Requiere permisos de administrador
 - ✅ Genera ejecutable .exe para Windows
 
@@ -21,7 +23,7 @@ Un editor de archivos hosts para Windows construido con Electron + Vue.js.
 
 ```bash
 # Clonar el repositorio
-git clone <repository-url>
+git clone git@github.com:Rzyfront/Host-manager.git
 cd host-editor
 
 # Instalar dependencias
@@ -65,8 +67,10 @@ host-editor/
 
 1. Ejecuta la aplicación (requiere permisos de administrador)
 2. Agrega nuevas entradas de hosts con IP y dominio
-3. Visualiza y elimina hosts existentes
-4. Crea backups automáticos antes de modificar
+3. Organiza hosts en grupos
+4. Renombra o elimina grupos según necesites
+5. Visualiza y elimina hosts existentes
+6. Crea backups automáticos antes de modificar
 
 ## Seguridad
 
