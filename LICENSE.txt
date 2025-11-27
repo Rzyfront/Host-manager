@@ -1,0 +1,21 @@
+Host Editor
+Copyright (C) 2024 Host Editor Team
+
+This software is provided "as-is" without any warranties. Use at your own risk.
+
+This application is a legitimate Windows hosts file management tool designed for developers and system administrators. It requires administrator privileges to modify the Windows hosts file, which is a protected system file.
+
+For support and more information:
+- Website: https://hosteditor.com
+- Email: support@hosteditor.com
+- License: MIT License
+
+This software does not contain any malicious code, viruses, or harmful functionality. It is an open-source project developed with transparency and security best practices.
+
+The application only:
+- Reads and modifies the Windows hosts file
+- Creates backup copies of the hosts file
+- Provides a user interface for managing host entries
+- Requires administrator privileges for legitimate system file access
+
+If you have any security concerns, please review the source code available at our website.

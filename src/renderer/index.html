@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host Editor</title>
+    <link rel="icon" type="image/x-icon" href="../public/icon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #5e6ad2;
+            --primary-foreground: #ffffff;
+            --secondary: #f7f8f8;
+            --secondary-foreground: #08090a;
+            --muted: #8a8f98;
+            --muted-foreground: #f7f8f8;
+            --background: #ffffff;
+            --foreground: #08090a;
+            --border: #e2e8f0;
+            --input: #f7f8f8;
+            --ring: #5e6ad2;
+            --radius: 0.5rem;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        [data-theme="dark"] {
+            --primary: #7c8ff9;
+            --primary-foreground: #08090a;
+            --secondary: #1a1d23;
+            --secondary-foreground: #f7f8f8;
+            --muted: #6b7280;
+            --muted-foreground: #1a1d23;
+            --background: #08090a;
+            --foreground: #f7f8f8;
+            --border: #374151;
+            --input: #1a1d23;
+            --ring: #7c8ff9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--background);
+            color: var(--foreground);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .app-container {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: var(--secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 1.5rem;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .app-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.5rem;
+            background: var(--primary);
+            color: var(--primary-foreground);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            transition: all 0.15s ease;
+        }
+
+        .app-icon:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-md);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--foreground);
+        }
+
+        .header p {
+            color: var(--muted);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .theme-toggle {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            color: var(--foreground);
+        }
+
+        .theme-toggle:hover {
+            background: var(--secondary);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .toast {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 0.75rem 1rem;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-width: 300px;
+            max-width: 400px;
+            animation: slideInRight 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.15s ease;
+        }
+
+        .toast:hover {
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+        .toast.success {
+            border-left: 3px solid #10b981;
+        }
+
+        .toast.error {
+            border-left: 3px solid #ef4444;
+        }
+
+        .toast.info {
+            border-left: 3px solid var(--primary);
+        }
+
+        .toast-icon {
+            font-size: 1rem;
+            flex-shrink: 0;
+            width: 1.25rem;
+            text-align: center;
+            font-family: 'Font Awesome 6 Free', sans-serif;
+            font-weight: 900;
+        }
+
+        .toast.success .toast-icon {
+            color: #10b981;
+        }
+
+        .toast.error .toast-icon {
+            color: #ef4444;
+        }
+
+        .toast.info .toast-icon {
+            color: var(--primary);
+        }
+
+        .toast-message {
+            flex: 1;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--foreground);
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0;
+            width: 1.25rem;
+            height: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.25rem;
+            transition: all 0.15s ease;
+        }
+
+        .toast-close:hover {
+            background: var(--secondary);
+            color: var(--foreground);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+            text-decoration: none;
+            outline: none;
+            height: 2.5rem;
+            padding: 0 1rem;
+        }
+
+        .btn:focus-visible {
+            box-shadow: 0 0 0 2px var(--ring);
+        }
+
+        .btn:disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--primary-foreground);
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            opacity: 0.9;
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: var(--secondary-foreground);
+            border-color: var(--border);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            opacity: 0.8;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--foreground);
+            border-color: var(--border);
+        }
+
+        .btn-outline:hover:not(:disabled) {
+            background: var(--secondary);
+            border-color: var(--muted);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--foreground);
+            border-color: transparent;
+        }
+
+        .btn-ghost:hover:not(:disabled) {
+            background: var(--secondary);
+        }
+
+        .btn-sm {
+            height: 2rem;
+            padding: 0 0.75rem;
+            font-size: 0.75rem;
+        }
+
+        .btn-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            padding: 0;
+        }
+
+        .btn-icon.btn-sm {
+            width: 2rem;
+            height: 2rem;
+        }
+
+        /* Card */
+        .card {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .card-header {
+            padding: 1.5rem 1.5rem 0;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .card-footer {
+            padding: 0 1.5rem 1.5rem;
+        }
+
+        /* Input */
+        .input {
+            display: flex;
+            height: 2.5rem;
+            width: 100%;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--background);
+            padding: 0 0.75rem;
+            font-size: 0.875rem;
+            transition: all 0.15s ease;
+            outline: none;
+            color: var(--foreground);
+        }
+
+        .input:focus {
+            border-color: var(--ring);
+            box-shadow: 0 0 0 2px var(--ring);
+        }
+
+        .input.error {
+            border-color: #ef4444;
+        }
+
+        .label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--foreground);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        /* Select */
+        .select {
+            display: flex;
+            height: 2.5rem;
+            width: 100%;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--background);
+            padding: 0 2rem 0 0.75rem;
+            font-size: 0.875rem;
+            transition: all 0.15s ease;
+            outline: none;
+            appearance: none;
+            color: var(--foreground);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+        }
+
+        .select:focus {
+            border-color: var(--ring);
+            box-shadow: 0 0 0 2px var(--ring);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            transition: border-color 0.2s ease;
+        }
+
+        .tab {
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--muted);
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .tab:hover {
+            color: var(--foreground);
+            background: var(--secondary);
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        /* Host Item */
+        .host-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--background);
+            transition: all 0.15s ease;
+        }
+
+        .host-item:hover {
+            background: var(--secondary);
+            box-shadow: var(--shadow);
+        }
+
+        .host-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .host-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .host-status {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .host-status.active {
+            background: #10b981;
+            color: white;
+        }
+
+        .host-status.inactive {
+            background: var(--muted);
+            color: var(--muted-foreground);
+        }
+
+        .host-ip {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--foreground);
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+
+        .host-domain {
+            font-size: 0.875rem;
+            color: var(--muted);
+        }
+
+        .host-comment {
+            font-size: 0.75rem;
+            color: var(--muted);
+            font-style: italic;
+        }
+
+        .host-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Group Section */
+        .group-section {
+            margin-bottom: 2rem;
+            border: 2px solid var(--primary);
+            border-radius: var(--radius);
+            background: var(--background);
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .group-section:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .group-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            background: var(--primary);
+            color: var(--primary-foreground);
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+        }
+
+        .group-title {
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .group-title::before {
+            content: '';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            content: '\f07b';
+            margin-right: 0.5rem;
+        }
+
+        .group-count {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+        }
+
+        .group-content {
+            padding: 1rem;
+            background: var(--background);
+            transition: background-color 0.2s ease;
+        }
+
+        .group-content .host-item {
+            margin-bottom: 0.75rem;
+            border-left: 3px solid var(--border);
+            transition: all 0.15s ease;
+        }
+
+        .group-content .host-item:hover {
+            border-left-color: var(--primary);
+            transform: translateX(2px);
+        }
+
+        .group-content .host-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .group-content .host-item {
+            margin-bottom: 0.75rem;
+            border-left: 3px solid var(--border);
+            transition: all 0.15s ease;
+        }
+
+        .group-content .host-item:hover {
+            border-left-color: var(--primary);
+            transform: translateX(2px);
+        }
+
+        .group-content .host-item:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.15s ease;
+        }
+
+        .modal {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.2s ease;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .modal-header {
+            padding: 1.5rem 1.5rem 0;
+        }
+
+        .modal-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--foreground);
+        }
+
+        .modal-content {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 0 1.5rem 1.5rem;
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+
+        /* Loading and Empty States */
+        .loading {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--muted);
+            font-size: 0.875rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--muted);
+        }
+
+        .empty-state h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: var(--foreground);
+        }
+
+        .empty-state p {
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(1rem);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+
+        .toast.removing {
+            animation: slideOutRight 0.2s ease forwards;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .host-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .host-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .modal {
+                width: 95%;
+            }
+
+            .toast-container {
+                left: 1rem;
+                right: 1rem;
+            }
+
+            .toast {
+                min-width: auto;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="app-container">
+            <header class="header">
+                <div class="header-content">
+                    <div class="header-left">
+                        <div class="app-icon">
+                            <i class="fas fa-network-wired"></i>
+                        </div>
+                        <div>
+                            <h1>Host Editor</h1>
+                            <p>Manage your Windows hosts file with ease</p>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <button class="theme-toggle btn-icon" @click="toggleTheme"
+                            :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'">
+                            <i :class="isDark ? 'fas fa-sun' : 'fas fa-moon'"></i>
+                        </button>
+                        <button class="btn btn-secondary" @click="showBackupModal = true">
+                            <i class="fas fa-download"></i> Backup
+                        </button>
+                        <button class="btn btn-secondary" @click="refreshHosts">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="main-content">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="tabs">
+                            <div class="tab" :class="{ active: viewMode === 'all' }" @click="viewMode = 'all'">
+                                All Hosts
+                            </div>
+                            <div class="tab" :class="{ active: viewMode === 'groups' }" @click="viewMode = 'groups'">
+                                By Groups
+                            </div>
+                        </div>
+                        <div
+                            style="margin-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                            <h2 style="font-size: 1.125rem; font-weight: 600; color: var(--foreground);">
+                                {{ viewMode === 'all' ? 'All Host Entries' : 'Host Groups' }}
+                            </h2>
+                            <button class="btn btn-primary" @click="showAddModal = true">
+                                <i class="fas fa-plus"></i> Add Host
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card-content">
+                        <div v-if="loading" class="loading">
+                            <i class="fas fa-spinner fa-spin"></i> Loading hosts...
+                        </div>
+
+                        <!-- All Hosts View -->
+                        <div v-else-if="viewMode === 'all'">
+                            <div v-if="hosts.length === 0" class="empty-state">
+                                <h3>No hosts found</h3>
+                                <p>Start by adding your first host entry</p>
+                                <button class="btn btn-primary" @click="showAddModal = true">
+                                    <i class="fas fa-plus"></i> Add Your First Host
+                                </button>
+                            </div>
+                            <div v-else style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <div v-for="host in hosts" :key="`${host.ip}-${host.domain}`" class="host-item">
+                                    <div class="host-info">
+                                        <div class="host-header">
+                                            <span class="host-status" :class="host.isActive ? 'active' : 'inactive'">
+                                                {{ host.isActive ? 'Active' : 'Inactive' }}
+                                            </span>
+                                            <span class="host-ip">{{ host.ip }}</span>
+                                        </div>
+                                        <div class="host-domain">{{ host.domain }}</div>
+                                        <div class="host-comment" v-if="host.comment">{{ host.comment }}</div>
+                                        <div class="host-comment" v-if="host.group !== 'Default'"><i
+                                                class="fas fa-folder"></i> {{ host.group }}</div>
+                                    </div>
+                                    <div class="host-actions">
+                                        <button class="btn btn-sm btn-outline" @click="toggleHost(host.ip, host.domain)"
+                                            :disabled="isSubmitting"
+                                            :title="host.isActive ? 'Deactivate host' : 'Activate host'">
+                                            <i :class="host.isActive ? 'fas fa-pause' : 'fas fa-play'"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline" @click="editHost(host)"
+                                            :disabled="isSubmitting" title="Edit host">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline"
+                                            @click="showMoveModal = true; selectedHost = host" :disabled="isSubmitting"
+                                            title="Move to group">
+                                            <i class="fas fa-folder"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline" @click="removeHost(host.ip, host.domain)"
+                                            :disabled="isSubmitting" title="Remove host">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Groups View -->
+                        <div v-else-if="viewMode === 'groups'">
+                            <div v-if="groups.length === 0" class="empty-state">
+                                <h3>No groups found</h3>
+                                <p>Create your first group to organize your hosts</p>
+                                <button class="btn btn-primary" @click="showCreateGroupModal = true">
+                                    <i class="fas fa-plus"></i> Create Group
+                                </button>
+                            </div>
+                            <div v-else>
+                                <div v-for="group in groups" :key="group.name" class="group-section">
+                                    <div class="group-header">
+                                        <div>
+                                            <div class="group-title">{{ group.name }}</div>
+                                            <div class="group-count">{{ group.activeCount }}/{{ group.hosts.length }}
+                                                active</div>
+                                        </div>
+                                        <div style="display: flex; gap: 0.5rem;">
+                                            <button class="btn btn-sm btn-outline" @click="openRenameGroupModal(group)"
+                                                title="Rename Group" v-if="group.name !== 'Default'">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline" @click="confirmDeleteGroup(group)"
+                                                title="Delete Group" v-if="group.name !== 'Default'">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline"
+                                                @click="showAddModal = true; selectedGroup = group.name">
+                                                <i class="fas fa-plus"></i> Add Host
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="group-content">
+                                        <div v-if="group.hosts.length === 0"
+                                            style="padding: 1rem; text-align: center; color: var(--muted); font-size: 0.875rem;">
+                                            No hosts in this group
+                                        </div>
+                                        <div v-for="host in group.hosts" :key="`${host.ip}-${host.domain}`"
+                                            class="host-item">
+                                            <div class="host-info">
+                                                <div class="host-header">
+                                                    <span class="host-status"
+                                                        :class="host.isActive ? 'active' : 'inactive'">
+                                                        {{ host.isActive ? 'Active' : 'Inactive' }}
+                                                    </span>
+                                                    <span class="host-ip">{{ host.ip }}</span>
+                                                </div>
+                                                <div class="host-domain">{{ host.domain }}</div>
+                                                <div class="host-comment" v-if="host.comment">{{ host.comment }}</div>
+                                            </div>
+                                            <div class="host-actions">
+                                                <button class="btn btn-sm btn-outline"
+                                                    @click="toggleHost(host.ip, host.domain)" :disabled="isSubmitting"
+                                                    :title="host.isActive ? 'Deactivate host' : 'Activate host'">
+                                                    <i :class="host.isActive ? 'fas fa-pause' : 'fas fa-play'"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline" @click="editHost(host)"
+                                                    :disabled="isSubmitting" title="Edit host">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline"
+                                                    @click="showMoveModal = true; selectedHost = host"
+                                                    :disabled="isSubmitting" title="Move to group">
+                                                    <i class="fas fa-folder"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline"
+                                                    @click="removeHost(host.ip, host.domain)" :disabled="isSubmitting"
+                                                    title="Remove host">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <div style="flex: 1;">
+                            <small style="color: var(--muted);">
+                                Total: {{ hosts.length }} hosts |
+                                Active: {{ hosts.filter(h => h.isActive).length }} |
+                                Inactive: {{ hosts.filter(h => !h.isActive).length }}
+                            </small>
+                        </div>
+                        <button v-if="viewMode === 'groups'" class="btn btn-outline"
+                            @click="showCreateGroupModal = true">
+                            <i class="fas fa-plus"></i> Create Group
+                        </button>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Toast Container -->
+        <div class="toast-container">
+            <div v-for="toast in toasts" :key="toast.id" class="toast"
+                :class="[toast.type, { removing: toast.removing }]">
+
+                <span class="toast-message">{{ toast.message }}</span>
+                <button class="toast-close" @click="removeToast(toast.id)">×</button>
+            </div>
+        </div>
+
+        <!-- Add/Edit Host Modal -->
+        <div class="modal-overlay" v-if="showAddModal || showEditModal" @click="closeModal">
+            <div class="modal" @click.stop>
+                <div class="modal-header">
+                    <h3 class="modal-title">{{ isEditing ? 'Edit Host' : 'Add New Host' }}</h3>
+                </div>
+
+                <div class="modal-content">
+                    <form @submit.prevent="saveHost">
+                        <div class="form-group">
+                            <label class="label" for="ip">IP Address:</label>
+                            <input type="text" id="ip" class="input" v-model="currentHost.ip" placeholder="192.168.1.1"
+                                :class="{ error: errors.ip }" @blur="validateIP">
+                            <div class="error-message" v-if="errors.ip">{{ errors.ip }}</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label" for="domain">Domain:</label>
+                            <input type="text" id="domain" class="input" v-model="currentHost.domain"
+                                placeholder="example.com" :class="{ error: errors.domain }" @blur="validateDomain">
+                            <div class="error-message" v-if="errors.domain">{{ errors.domain }}</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label" for="group">Group:</label>
+                            <select id="group" class="select" v-model="currentHost.group">
+                                <option value="Default">Default</option>
+                                <option v-for="group in groups" :key="group.name" :value="group.name">
+                                    {{ group.name }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label" for="comment">Comment (optional):</label>
+                            <input type="text" id="comment" class="input" v-model="currentHost.comment"
+                                placeholder="Development server">
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @click="closeModal">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary" @click="saveHost" :disabled="isSubmitting">
+                        <i v-if="isSubmitting" class="fas fa-spinner fa-spin"></i>
+                        <span v-else>
+                            <i :class="isEditing ? 'fas fa-save' : 'fas fa-plus'"></i>
+                            {{ isEditing ? 'Update Host' : 'Add Host' }}
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Group Modal -->
+        <div class="modal-overlay" v-if="showCreateGroupModal" @click="showCreateGroupModal = false">
+            <div class="modal" @click.stop>
+                <div class="modal-header">
+                    <h3 class="modal-title">Create New Group</h3>
+                </div>
+
+                <div class="modal-content">
+                    <div class="form-group">
+                        <label class="label" for="groupName">Group Name:</label>
+                        <input type="text" id="groupName" class="input" v-model="newGroupName"
+                            placeholder="Development">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @click="showCreateGroupModal = false">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" @click="createGroup"
+                        :disabled="isSubmitting || !newGroupName.trim()">
+                        <i class="fas fa-plus"></i> Create Group
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Move to Group Modal -->
+        <div class="modal-overlay" v-if="showMoveModal" @click="showMoveModal = false">
+            <div class="modal" @click.stop>
+                <div class="modal-header">
+                    <h3 class="modal-title">Move Host to Group</h3>
+                </div>
+
+                <div class="modal-content">
+                    <div class="form-group">
+                        <label class="label">Current Host:</label>
+                        <div
+                            style="padding: 0.75rem; background: var(--secondary); border-radius: var(--radius); margin-bottom: 1rem;">
+                            <div style="font-weight: 600; color: var(--foreground);">{{ selectedHost?.ip }} {{
+                                selectedHost?.domain }}</div>
+                            <div style="font-size: 0.875rem; color: var(--muted); margin-top: 0.25rem;"
+                                v-if="selectedHost?.comment">{{ selectedHost.comment }}</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label" for="moveGroup">Select Group:</label>
+                        <select id="moveGroup" class="select" v-model="selectedMoveGroup">
+                            <option value="Default">Default</option>
+                            <option v-for="group in groups" :key="group.name" :value="group.name">
+                                {{ group.name }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @click="showMoveModal = false">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" @click="moveHostToGroup" :disabled="isSubmitting">
+                        <i class="fas fa-folder-open"></i> Move Host
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Backup Modal -->
+        <div class="modal-overlay" v-if="showBackupModal" @click="showBackupModal = false">
+            <div class="modal" @click.stop>
+                <div class="modal-header">
+                    <h3 class="modal-title">Create Backup</h3>
+                </div>
+
+                <div class="modal-content">
+                    <div class="form-group">
+                        <label class="label" for="backupPath">Backup Location (optional):</label>
+                        <input type="text" id="backupPath" class="input" v-model="backupPath"
+                            placeholder="Leave empty for default location">
+                        <small style="color: var(--muted); margin-top: 0.25rem; display: block;">
+                            Default: ~/.host-editor/backups/
+                        </small>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @click="showBackupModal = false">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" @click="createBackup" :disabled="isSubmitting">
+                        <i class="fas fa-download"></i> Create Backup
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rename Group Modal -->
+        <div class="modal-overlay" v-if="showRenameGroupModal" @click.self="closeRenameGroupModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3>Rename Group</h3>
+                </div>
+                <div class="modal-body" style="padding: 1.5rem;">
+                    <div class="form-group">
+                        <label class="label">New Group Name</label>
+                        <input type="text" class="input" v-model="renameGroupForm.newName" placeholder="Enter new name"
+                            ref="renameGroupInput" @keyup.enter="renameGroup">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @click="closeRenameGroupModal">Cancel</button>
+                    <button class="btn btn-primary" @click="renameGroup">Save</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Group Confirmation Modal -->
+        <div class="modal-overlay" v-if="showDeleteGroupModal" @click.self="closeDeleteGroupModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3>Delete Group</h3>
+                </div>
+                <div class="modal-body" style="padding: 1.5rem;">
+                    <p>Are you sure you want to delete the group <strong>{{ groupToDelete?.name }}</strong>?</p>
+                    <div v-if="groupToDelete?.hosts.length > 0"
+                        style="margin-top: 1rem; padding: 0.75rem; background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; border-radius: 0.25rem;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Warning: This group contains {{ groupToDelete.hosts.length }} hosts. All of them will be
+                        deleted!
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @click="closeDeleteGroupModal">Cancel</button>
+                    <button class="btn btn-primary" style="background-color: #dc3545; border-color: #dc3545;"
+                        @click="deleteGroup">Delete Group</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    hosts: [],
+                    groups: [],
+                    currentHost: {
+                        ip: '',
+                        domain: '',
+                        comment: '',
+                        group: 'Default'
+                    },
+                    originalHost: null,
+                    errors: {
+                        ip: '',
+                        domain: ''
+                    },
+                    loading: false,
+                    isSubmitting: false,
+                    showAddModal: false,
+                    showEditModal: false,
+                    showCreateGroupModal: false,
+                    showMoveModal: false,
+                    showBackupModal: false,
+                    isEditing: false,
+                    viewMode: 'all',
+                    selectedGroup: 'Default',
+                    selectedHost: null,
+                    selectedMoveGroup: 'Default',
+                    newGroupName: '',
+                    backupPath: '',
+                    toasts: [],
+                    toastIdCounter: 0,
+                    isDark: false,
+                    showRenameGroupModal: false,
+                    renameGroupForm: {
+                        oldName: '',
+                        newName: ''
+                    },
+                    showDeleteGroupModal: false,
+                    groupToDelete: null
+                };
+            },
+
+            async mounted() {
+                this.initTheme();
+                await this.loadData();
+            },
+
+            methods: {
+                initTheme() {
+                    // Check system preference
+                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    const savedTheme = localStorage.getItem('theme');
+
+                    this.isDark = savedTheme === 'dark' || (!savedTheme && prefersDark);
+                    this.applyTheme();
+                },
+
+                toggleTheme() {
+                    this.isDark = !this.isDark;
+                    localStorage.setItem('theme', this.isDark ? 'dark' : 'light');
+                    this.applyTheme();
+                },
+
+                applyTheme() {
+                    document.documentElement.setAttribute('data-theme', this.isDark ? 'dark' : 'light');
+                },
+
+                async loadData() {
+                    await Promise.all([
+                        this.loadHosts(),
+                        this.loadGroups()
+                    ]);
+                },
+
+                async loadHosts() {
+                    this.loading = true;
+                    try {
+                        this.hosts = await window.electronAPI.getHosts();
+                    } catch (error) {
+                        this.showToast(`Error loading hosts: ${error.message}`, 'error');
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async loadGroups() {
+                    try {
+                        this.groups = await window.electronAPI.getGroups();
+                    } catch (error) {
+                        this.showToast(`Error loading groups: ${error.message}`, 'error');
+                    }
+                },
+
+                async validateIP() {
+                    if (!this.currentHost.ip) {
+                        this.errors.ip = 'IP address is required';
+                        return false;
+                    }
+
+                    try {
+                        const isValid = await window.electronAPI.validateIP(this.currentHost.ip);
+                        if (!isValid) {
+                            this.errors.ip = 'Invalid IP address format';
+                            return false;
+                        }
+                        this.errors.ip = '';
+                        return true;
+                    } catch (error) {
+                        this.errors.ip = 'Error validating IP';
+                        return false;
+                    }
+                },
+
+                async validateDomain() {
+                    if (!this.currentHost.domain) {
+                        this.errors.domain = 'Domain is required';
+                        return false;
+                    }
+
+                    try {
+                        const isValid = await window.electronAPI.validateDomain(this.currentHost.domain);
+                        if (!isValid) {
+                            this.errors.domain = 'Invalid domain name format';
+                            return false;
+                        }
+                        this.errors.domain = '';
+                        return true;
+                    } catch (error) {
+                        this.errors.domain = 'Error validating domain';
+                        return false;
+                    }
+                },
+
+                async saveHost() {
+                    const isIPValid = await this.validateIP();
+                    const isDomainValid = await this.validateDomain();
+
+                    if (!isIPValid || !isDomainValid) {
+                        return;
+                    }
+
+                    this.isSubmitting = true;
+                    try {
+                        let result;
+                        if (this.isEditing) {
+                            result = await window.electronAPI.updateHost(
+                                this.originalHost.ip,
+                                this.originalHost.domain,
+                                this.currentHost.ip,
+                                this.currentHost.domain,
+                                this.currentHost.comment
+                            );
+                        } else {
+                            result = await window.electronAPI.addHost(
+                                this.currentHost.ip,
+                                this.currentHost.domain,
+                                this.currentHost.comment,
+                                this.currentHost.group
+                            );
+                        }
+
+                        if (result.success) {
+                            this.showToast(
+                                this.isEditing ? 'Host updated successfully!' : 'Host added successfully!',
+                                'success'
+                            );
+                            this.closeModal();
+                            await this.loadData();
+                        }
+                    } catch (error) {
+                        this.showToast(`Error ${this.isEditing ? 'updating' : 'adding'} host: ${error.message}`, 'error');
+                    } finally {
+                        this.isSubmitting = false;
+                    }
+                },
+
+                async toggleHost(ip, domain) {
+                    this.isSubmitting = true;
+                    try {
+                        const result = await window.electronAPI.toggleHost(ip, domain);
+
+                        if (result.success) {
+                            this.showToast('Host toggled successfully!', 'success');
+                            await this.loadData();
+                        }
+                    } catch (error) {
+                        this.showToast(`Error toggling host: ${error.message}`, 'error');
+                    } finally {
+                        this.isSubmitting = false;
+                    }
+                },
+
+                async removeHost(ip, domain) {
+                    if (!confirm(`Are you sure you want to remove ${ip} ${domain}?`)) {
+                        return;
+                    }
+
+                    this.isSubmitting = true;
+                    try {
+                        const result = await window.electronAPI.removeHost(ip, domain);
+
+                        if (result.success) {
+                            this.showToast('Host removed successfully!', 'success');
+                            await this.loadData();
+                        }
+                    } catch (error) {
+                        this.showToast(`Error removing host: ${error.message}`, 'error');
+                    } finally {
+                        this.isSubmitting = false;
+                    }
+                },
+
+                async moveHostToGroup() {
+                    if (!this.selectedHost) {
+                        return;
+                    }
+
+                    this.isSubmitting = true;
+                    try {
+                        const result = await window.electronAPI.moveHostToGroup(
+                            this.selectedHost.ip,
+                            this.selectedHost.domain,
+                            this.selectedMoveGroup
+                        );
+
+                        if (result.success) {
+                            this.showToast('Host moved to group successfully!', 'success');
+                            this.showMoveModal = false;
+                            this.selectedHost = null;
+                            this.selectedMoveGroup = 'Default';
+                            await this.loadData();
+                        }
+                    } catch (error) {
+                        this.showToast(`Error moving host to group: ${error.message}`, 'error');
+                    } finally {
+                        this.isSubmitting = false;
+                    }
+                },
+
+                editHost(host) {
+                    this.isEditing = true;
+                    this.originalHost = { ...host };
+                    this.currentHost = {
+                        ip: host.ip,
+                        domain: host.domain,
+                        comment: host.comment || '',
+                        group: host.group || 'Default'
+                    };
+                    this.showEditModal = true;
+                },
+
+                async createGroup() {
+                    if (!this.newGroupName.trim()) {
+                        return;
+                    }
+
+                    this.isSubmitting = true;
+                    try {
+                        const result = await window.electronAPI.createGroup(this.newGroupName.trim());
+
+                        if (result.success) {
+                            this.showToast('Group created successfully!', 'success');
+                            this.showCreateGroupModal = false;
+                            this.newGroupName = '';
+                            await this.loadData();
+                        }
+                    } catch (error) {
+                        this.showToast(`Error creating group: ${error.message}`, 'error');
+                    } finally {
+                        this.isSubmitting = false;
+                    }
+                },
+
+                async createBackup() {
+                    this.isSubmitting = true;
+                    try {
+                        const result = await window.electronAPI.backupHosts(this.backupPath.trim() || null);
+
+                        if (result.success) {
+                            this.showToast('Backup created successfully!', 'success');
+                            this.showBackupModal = false;
+                            this.backupPath = '';
+                        }
+                    } catch (error) {
+                        this.showToast(`Error creating backup: ${error.message}`, 'error');
+                    } finally {
+                        this.isSubmitting = false;
+                    }
+                },
+
+                closeModal() {
+                    this.showAddModal = false;
+                    this.showEditModal = false;
+                    this.isEditing = false;
+                    this.originalHost = null;
+                    this.currentHost = {
+                        ip: '',
+                        domain: '',
+                        comment: '',
+                        group: 'Default'
+                    };
+                    this.errors = {
+                        ip: '',
+                        domain: ''
+                    };
+                },
+
+                async refreshHosts() {
+                    await this.loadData();
+                    this.showToast('Host list refreshed', 'info');
+                },
+
+                showToast(message, type = 'info') {
+                    const id = ++this.toastIdCounter;
+                    const toast = { id, message, type, removing: false };
+
+                    this.toasts.push(toast);
+
+                    // Auto remove after 4 seconds
+                    setTimeout(() => {
+                        this.removeToast(id);
+                    }, 4000);
+                },
+
+                removeToast(id) {
+                    const toast = this.toasts.find(t => t.id === id);
+                    if (toast && !toast.removing) {
+                        toast.removing = true;
+
+                        // Remove from DOM after animation
+                        setTimeout(() => {
+                            const index = this.toasts.findIndex(t => t.id === id);
+                            if (index > -1) {
+                                this.toasts.splice(index, 1);
+                            }
+                        }, 200);
+                    }
+                },
+
+                openRenameGroupModal(group) {
+                    this.renameGroupForm.oldName = group.name;
+                    this.renameGroupForm.newName = group.name;
+                    this.showRenameGroupModal = true;
+                    this.$nextTick(() => {
+                        if (this.$refs.renameGroupInput) {
+                            this.$refs.renameGroupInput.focus();
+                            this.$refs.renameGroupInput.select();
+                        }
+                    });
+                },
+
+                closeRenameGroupModal() {
+                    this.showRenameGroupModal = false;
+                    this.renameGroupForm = { oldName: '', newName: '' };
+                },
+
+                async renameGroup() {
+                    if (!this.renameGroupForm.newName.trim()) {
+                        this.showToast('Group name cannot be empty', 'error');
+                        return;
+                    }
+
+                    try {
+                        await window.electronAPI.renameGroup(this.renameGroupForm.oldName, this.renameGroupForm.newName);
+                        this.showToast('Group renamed successfully', 'success');
+                        this.closeRenameGroupModal();
+                        await this.loadHosts();
+                    } catch (error) {
+                        this.showToast(error.message, 'error');
+                    }
+                },
+
+                confirmDeleteGroup(group) {
+                    this.groupToDelete = group;
+                    this.showDeleteGroupModal = true;
+                },
+
+                closeDeleteGroupModal() {
+                    this.showDeleteGroupModal = false;
+                    this.groupToDelete = null;
+                },
+
+                async deleteGroup() {
+                    if (!this.groupToDelete) return;
+
+                    try {
+                        await window.electronAPI.deleteGroup(this.groupToDelete.name);
+                        this.showToast('Group deleted successfully', 'success');
+                        this.closeDeleteGroupModal();
+                        await this.loadHosts();
+                    } catch (error) {
+                        this.showToast(error.message, 'error');
+                    }
+                },
+
+
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

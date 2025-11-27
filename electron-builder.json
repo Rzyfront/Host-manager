@@ -1,0 +1,45 @@
+{
+  "appId": "com.hosteditor.app",
+  "productName": "Host Editor",
+  "directories": {
+    "output": "dist"
+  },
+  "files": [
+    "src/**/*",
+    "node_modules/**/*",
+    "package.json"
+  ],
+  "extraMetadata": {
+    "main": "src/main/main.js"
+  },
+  "win": {
+    "target": [
+      "portable",
+      "dir"
+    ],
+    "requestedExecutionLevel": "requireAdministrator",
+    "icon": "src/assests/host.ico",
+    "sign": false
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "allowElevation": true,
+    "installerIcon": "src/assests/host.ico",
+    "uninstallerIcon": "src/assests/host.ico",
+    "installerHeaderIcon": "src/assests/host.ico",
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "Host Editor"
+  },
+  "mac": {
+    "target": "dmg",
+    "icon": "public/icon.icns",
+    "category": "public.app-category.developer-tools"
+  },
+  "linux": {
+    "target": "AppImage",
+    "icon": "public/icon.png",
+    "category": "Development"
+  }
+}

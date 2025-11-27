@@ -1,0 +1,7 @@
+172.28.90.39    app.isi.clinic
+127.0.0.1   vendix.com
+
+---[Test]---
+
+1.1.1.1	added.test	# Added via script
+---[>Test<]---
