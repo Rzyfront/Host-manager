@@ -2,6 +2,22 @@
 
 Un editor de archivos hosts para Windows construido con Electron + Vue.js.
 
+## 📥 Descargar para Windows
+
+### 🚀 Última Versión Estable (LTS)
+
+[![Descargar Host Manager](https://img.shields.io/badge/Descargar-Host_Manager_LTS-blue?style=for-the-badge&logo=windows)](https://github.com/Rzyfront/Host-manager/releases/download/LTS/host-manager-win32-x64.zip)
+
+**Descarga directa:** [host-manager-win32-x64.zip](https://github.com/Rzyfront/Host-manager/releases/download/LTS/host-manager-win32-x64.zip)
+
+### Instrucciones de instalación:
+1. Descarga el archivo ZIP de arriba
+2. Extrae el contenido en una carpeta de tu elección
+3. Ejecuta `host-manager.exe` (requiere permisos de administrador)
+4. ¡Listo! Ya puedes gestionar tu archivo hosts
+
+---
+
 ## Características
 
 - ✅ Interfaz moderna y responsiva con Vue 3
