@@ -1,8 +1,8 @@
-# Host Editor - Professional Windows Hosts File Manager
+# Host Manager - Professional Windows Hosts File Manager
 
 ## About This Software
 
-**Host Editor** is a legitimate, professional application designed for developers and system administrators to manage Windows hosts files efficiently and safely.
+**Host Manager** is a legitimate, professional application designed for developers and system administrators to manage Windows hosts files efficiently and safely.
 
 ### ✅ **Why This Software is Safe**
 
@@ -36,9 +36,9 @@
 
 ### 📧 **Contact & Support**
 
-- **Publisher**: Host Editor Team
-- **Website**: https://hosteditor.com
-- **Email**: support@hosteditor.com
+- **Publisher**: Host Manager Team
+- **Website**: https://hostmanager.com
+- **Email**: support@hostmanager.com
 - **License**: MIT License
 
 ### 🔍 **Verification**

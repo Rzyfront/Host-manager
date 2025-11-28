@@ -1,4 +1,4 @@
-# Host Editor
+# Host Manager
 
 Un editor de archivos hosts para Windows construido con Electron + Vue.js.
 
@@ -24,7 +24,7 @@ Un editor de archivos hosts para Windows construido con Electron + Vue.js.
 ```bash
 # Clonar el repositorio
 git clone git@github.com:Rzyfront/Host-manager.git
-cd host-editor
+cd host-manager
 
 # Instalar dependencias
 npm install
@@ -49,7 +49,7 @@ El ejecutable se generará en la carpeta `dist/`.
 ## Estructura del proyecto
 
 ```
-host-editor/
+host-manager/
 ├── src/
 │   ├── main/           # Proceso principal de Electron
 │   │   ├── main.js     # Archivo principal

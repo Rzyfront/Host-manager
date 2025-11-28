@@ -15,15 +15,15 @@ function createWindow() {
       contextIsolation: true,
       preload: path.join(__dirname, '../preload/preload.js')
     },
-    title: 'Host Editor - Professional Windows hosts file manager',
-    icon: path.join(__dirname, '../../public/icon.ico'),
+    title: 'Host Manager - Professional Windows hosts file manager',
+    icon: path.join(__dirname, '../assests/host.ico'),
     show: false,
     skipTaskbar: false
   });
 
   // Set application user model ID for Windows
   if (process.platform === 'win32') {
-    app.setAppUserModelId('com.hosteditor.app');
+    app.setAppUserModelId('com.hostmanager.app');
   }
 
   // Show window when ready to prevent visual flash

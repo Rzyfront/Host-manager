@@ -1,6 +1,6 @@
 {
-  "appId": "com.hosteditor.app",
-  "productName": "Host Editor",
+  "appId": "com.hostmanager.app",
+  "productName": "Host Manager",
   "directories": {
     "output": "dist"
   },
@@ -19,7 +19,9 @@
     ],
     "requestedExecutionLevel": "requireAdministrator",
     "icon": "src/assests/host.ico",
-    "sign": false
+    "sign": false,
+    "forceCodeSigning": false,
+    "publisherName": null
   },
   "nsis": {
     "oneClick": false,
@@ -30,7 +32,7 @@
     "installerHeaderIcon": "src/assests/host.ico",
     "createDesktopShortcut": true,
     "createStartMenuShortcut": true,
-    "shortcutName": "Host Editor"
+    "shortcutName": "Host Manager"
   },
   "mac": {
     "target": "dmg",

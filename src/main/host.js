@@ -8,7 +8,7 @@ class HostManager {
       ? path.join(process.env.SYSTEMROOT || 'C:\\Windows', 'System32', 'drivers', 'etc', 'hosts')
       : '/etc/hosts';
 
-    this.backupDir = path.join(os.homedir(), '.host-editor', 'backups');
+    this.backupDir = path.join(os.homedir(), '.host-manager', 'backups');
     this.ensureBackupDir();
   }
 

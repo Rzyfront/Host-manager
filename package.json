@@ -1,7 +1,7 @@
 {
-  "name": "host-editor",
+  "name": "host-manager",
   "version": "1.0.0",
-  "description": "Host editor for Windows",
+  "description": "Host Manager for Windows",
   "main": "src/main/main.js",
   "scripts": {
     "dev": "electron .",
@@ -17,11 +17,11 @@
     "windows"
   ],
   "author": {
-    "name": "Host Editor Team",
-    "email": "support@hosteditor.com",
-    "url": "https://hosteditor.com"
+    "name": "Host Manager Team",
+    "email": "support@hostmanager.com",
+    "url": "https://hostmanager.com"
   },
-  "publisher": "Host Editor Team",
+  "publisher": "Host Manager Team",
   "license": "MIT",
   "devDependencies": {
     "@electron/rebuild": "^3.7.2",
